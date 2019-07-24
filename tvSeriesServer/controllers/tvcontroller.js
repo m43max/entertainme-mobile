@@ -16,8 +16,9 @@ class Controller {
     Tv.find()
       .exec()
       .then(tvSeries => {
-        // to test caching
-        res.json(tvSeries)
+        setTimeout(() => {
+          res.json(tvSeries)
+        }, 1000)
       })
       .catch(next)
   }

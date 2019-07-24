@@ -1,7 +1,7 @@
 const { buildSchema } = require('graphql')
 
 module.exports = buildSchema(`
-	type Movie {
+	type Show {
 		_id: ID!
 		title: String!
 		overview: String
@@ -10,7 +10,8 @@ module.exports = buildSchema(`
 		tags: [String]
 	}
 
-	input MovieInput {
+	input ShowInput {
+		id: ID
 		title: String
 		overview: String
 		poster_path: String
@@ -19,13 +20,19 @@ module.exports = buildSchema(`
 	}
 
 	type RootQuery {
-		events: [String!]!
-		movies: [Movie!]!
+		movies: [Show!]!
+		movie(id: ID): Show
+		tvShows: [Show!]!
+		tvShow(id: ID): Show
 	}
 
 	type RootMutation {
-		createEvent(name: String): String
-		createMovie(movieInput: MovieInput): Movie
+		createMovie(movie: ShowInput): Show
+		deleteMovie(id: ID) : Boolean
+		updateMovie(movie: ShowInput) : Show
+		createTvShow(tvShow: ShowInput): Show
+		deleteTvShow(id: ID) : Boolean
+		updateTvShow(tvShow: ShowInput) : Show
 	}
 
 	schema {
