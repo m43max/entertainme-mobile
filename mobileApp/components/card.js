@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableNativeFeedback } from 'react-native';
 
 function Card({ show, onClick }) {
 	return (
-		<TouchableNativeFeedback
-			onPress={() => {}}
-			background={TouchableNativeFeedback.SelectableBackground()}
-		>
+		<TouchableNativeFeedback background={TouchableNativeFeedback.SelectableBackground()} onPress={onClick}>
 			<View style={styles.a}>
 				<Image style={styles.image} source={{uri: show.poster_path}} />
 				<Text style={styles.b}>
-					<Text style={styles.c}>{show.title + '\n'}</Text>
+					<Text style={styles.c}>
+						{show.title + '\n'}
+					</Text>
 					Popularity: {show.popularity + '\n'}
 				</Text>
 			</View>
@@ -20,7 +19,6 @@ function Card({ show, onClick }) {
 
 const styles = StyleSheet.create({
 	a: {
-		// flex: 1,
 		width: 180,
 		height: 292,
 		marginHorizontal: 10,

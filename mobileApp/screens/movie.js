@@ -1,52 +1,44 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, Button, Text, TouchableNativeFeedback } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-
-import { ApolloProvider, Query } from 'react-apollo';
-import ApolloClient, { gql } from 'apollo-boost';
-const client = new ApolloClient({
-  uri: 'http://10.0.2.2:3000/graphql'
-});
+import React, { useState } from 'react'
+import { StyleSheet, View, Text, TouchableNativeFeedback } from 'react-native';
+import { Query } from 'react-apollo';
+import { gql } from 'apollo-boost';
 
 import Flatlist from '../components/flatlist';
+import AddForm from '../components/addform';
 
 function MovieScreen({ navigation }) {
   const [showAdd, setShowAdd] = useState(false)
-
   return (
-    <ApolloProvider client={client}>
+    <>
+      {showAdd && <AddForm type="movie"/>}
       <Query
-        query={gql`
-          {
-            movies {
-              _id
-              title
-              overview
-              poster_path
-              popularity
-              tags
-            }
+        query={gql`{
+          movies {
+            _id
+            title
+            overview
+            poster_path
+            popularity
+            tags
           }
-        `}
+        }`}
       >
         {({ loading, error, data }) => (
           <View style={styles.container}>
             {loading && <Text>Loading...</Text>}
             {error && <Text>Error 🙁</Text>}
-            {data.movies && <Flatlist data={data.movies}/>}
+            {data.movies &&
+              <Flatlist data={data.movies} navi={navigation} type="movie"/>
+            }
           </View>
         )}
       </Query>
-      <TouchableNativeFeedback
-        onPress={() => setShowAdd(true)}
-      >
+      <TouchableNativeFeedback onPress={() => setShowAdd(b => !b)}>
         <View style={styles.addButton}>
-          <Text style={styles.plus}>
-            +
-          </Text>
+          <Text style={styles.plus}>+</Text>
         </View>
       </TouchableNativeFeedback>
-    </ApolloProvider>
+    </>
   );
 }
 
@@ -57,27 +49,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButton: {
-    height: 40,
-    width: 40,
+    height: 42,
+    width: 42,
     position: 'absolute',
     bottom: 10,
     right: 8,
     elevation: 5,
-    borderRadius: 20,
-    backgroundColor: '#252525',
+    borderRadius: 21,
+    backgroundColor: '#282828',
     justifyContent: 'center',
     alignItems: 'center',
   },
   plus: {
     fontSize: 22,
     color: 'white',
-  }
+  },
 });
-
-MovieScreen.navigationOptions = {
-  tabBarIcon: ({ focused, tintColor }) => (
-    <Ionicons name="ios-film" size={24} color={tintColor} />
-  ),
-}
 
 export default MovieScreen;

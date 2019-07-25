@@ -1,75 +1,115 @@
 import React, { useState, useEffect } from 'react'
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, TouchableNativeFeedback } from 'react-native';
+
+import { Query } from 'react-apollo';
+import { gql } from 'apollo-boost';
+
+const GET_MOVIE = gql`
+	query GetMovie($id: ID!) {
+		movie(id: $id) {
+			_id
+			title
+			overview
+			poster_path
+			popularity
+			tags
+		}
+	}
+`;
+
+const GET_TVSHOW = gql`
+	query GetTvShow($id: ID!) {
+		tvShow(id: $id) {
+			_id
+			title
+			overview
+			poster_path
+			popularity
+			tags
+		}
+	}
+`;
 
 function Details({ navigation }) {
-	const { url } = navigation.getParam('ship')
-	console.log({url}, '\n')
-	const [ship, setShip] = useState(null)
-
-	useEffect(() => {
-		axios.get(url)
-			.then(({data}) => {
-				setShip(data)
-			})
-			.catch(console.log)
-	}, []);
+	const type = navigation.getParam('type')
+	const id = navigation.getParam('show')._id
+	const query = type === 'movie' ? GET_MOVIE : GET_TVSHOW
 
   return (
-		<View style={styles.a}>
-			{ship ? 
-				(
-					<View style={styles.c}>
-						<Text style={styles.name}>
-							{`${ship.name}`}
-						</Text>
-						<Text style={styles.b}>
-							{'\n'}
-							Model: {`${ship.model}\n`}
-							Manufacturer: {`${ship.manufacturer}\n`}
-							Starship Class: {`${ship.starship_class}\n`}
-							Length: {`${ship.length} m\n`}
-							Cost In Credits: {`${ship.cost_in_credits}\n`}
-							Crew: {`${ship.crew}\n`}
-							Passengers: {`${ship.passengers}\n`}
-							Hyperdrive Rating: {`${ship.hyperdrive_rating}m\n`}
-							Cargo Capacity: {`${ship.cargo_capacity} kg\n`}
-						</Text>
-					</View>
-				) :
-				(
-					<View style={{flex: 1, alignItems: 'center', marginTop: 24}}>
-						<ActivityIndicator size="large" color="#dfdfdf" />
-					</View>
-				)
-			}
+		<View style={styles.container}>
+			<Query query={query} variables={{ id }}>
+				{({ loading, error, data }) => {
+					if (loading) return null;
+					if (error) return <Text>Error 🙁</Text>;
+					if (data) {
+						const show = data[type]
+						return (
+							<View style={styles.a}>
+								<Image style={styles.image} source={{uri: show.poster_path}} />
+								<Text style={styles.b}>
+									<Text style={styles.c}>
+										{show.title + '\n'}
+									</Text>
+									Overview: {show.overview + '\n'}
+									Popularity: {show.popularity + '\n'}
+									Tags: {show.tags.join(', ') + '\n'}
+								</Text>
+							</View>
+						)
+					}
+				}}
+			</Query>
+			<TouchableNativeFeedback onPress={() => {}}>
+        <View style={styles.Button}>
+          <Text style={styles.inside}>Delete</Text>
+        </View>
+      </TouchableNativeFeedback>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-	a: {
+	container: {
 		flex: 1,
-		// justifyContent: 'center',
-		backgroundColor: '#282828',
+		alignItems: 'center',
+		backgroundColor: '#e5e5e5',
+		padding: 12,
 	},
-	c: {
-		flex: 0,
-		marginVertical: 8,
-		marginHorizontal: 14,
-		alignSelf: 'flex-start',
+	a: {
+		width: 290,
+		marginBottom: 12,
+		borderRadius: 5,
+		overflow: 'hidden',
+	},
+	image: {
+		width: 290,
+		height: 380,
 	},
 	b: {
-		color: 'white',
-		lineHeight: 22,
+		paddingVertical: 12,
+		fontSize: 14,
+		lineHeight: 20,
 	},
-	name: {
-		fontSize: 28,
-		color: 'white',
-	}
-});
-
-Details.navigationOptions = ({ navigation }) => ({
-	title: 'Details',
+	c: {
+		marginBottom: 22,
+		fontSize: 22,
+	},
+	Button: {
+		height: 38,
+		paddingHorizontal: 14,
+    position: 'absolute',
+    bottom: 10,
+    right: 8,
+    elevation: 5,
+    borderRadius: 20,
+    backgroundColor: '#282828',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  inside: {
+    fontSize: 14,
+    color: 'white',
+  }
 });
 
 export default Details;

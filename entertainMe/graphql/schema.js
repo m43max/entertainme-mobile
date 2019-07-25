@@ -21,9 +21,9 @@ module.exports = buildSchema(`
 
 	type RootQuery {
 		movies: [Show!]!
-		movie(id: ID): Show
+		movie(id: ID!): Show
 		tvShows: [Show!]!
-		tvShow(id: ID): Show
+		tvShow(id: ID!): Show
 	}
 
 	type RootMutation {

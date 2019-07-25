@@ -1,37 +1,69 @@
-import React from 'react'
-import { StyleSheet, View, Button, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react'
+import { StyleSheet, View, Text, TouchableNativeFeedback } from 'react-native';
+import { Query } from 'react-apollo';
+import { gql } from 'apollo-boost';
+
+import Flatlist from '../components/flatlist';
+import AddForm from '../components/addform';
 
 function TvScreen({ navigation }) {
+  const [showAdd, setShowAdd] = useState(false)
   return (
-    <View style={styles.container}>
-      <View style={{padding: 8}}>
-				<Text style={{fontSize: 18}}>
-					Eager Hit That Frog
-				</Text>
-			</View>
-			<Button
-				color="#297bff"
-				title="Play the game"
-				onPress={() => {}}
-			/>
-    </View>
+    <>
+      {showAdd && <AddForm type="tvShow"/>}
+      <Query
+        query={gql`{
+          tvShows {
+            _id
+            title
+            overview
+            poster_path
+            popularity
+            tags
+          }
+        }`}
+      >
+        {({ loading, error, data }) => { console.log(data);return (
+          <View style={styles.container}>
+            {loading && <Text>Loading...</Text>}
+            {error && <Text>Error 🙁</Text>}
+            {data.tvShows &&
+              <Flatlist data={data.tvShows} navi={navigation} type="tvShow"/>
+            }
+          </View>
+        )}}
+      </Query>
+      <TouchableNativeFeedback onPress={() => setShowAdd(b => !b)}>
+        <View style={styles.addButton}>
+          <Text style={styles.plus}>+</Text>
+        </View>
+      </TouchableNativeFeedback>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 26,
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
+  },
+  addButton: {
+    height: 42,
+    width: 42,
+    position: 'absolute',
+    bottom: 10,
+    right: 8,
+    elevation: 5,
+    borderRadius: 21,
+    backgroundColor: '#282828',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  plus: {
+    fontSize: 22,
+    color: 'white',
   },
 });
-
-TvScreen.navigationOptions = {
-  tabBarIcon: ({ focused, tintColor }) => (
-    <Ionicons name="ios-tv" size={24} color={tintColor} />
-  ),
-}
 
 export default TvScreen;
