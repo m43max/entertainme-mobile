@@ -8,9 +8,10 @@ import AddForm from '../components/addform';
 
 function MovieScreen({ navigation }) {
   const [showAdd, setShowAdd] = useState(false)
+
   return (
     <>
-      {showAdd && <AddForm type="movie"/>}
+      {showAdd && <AddForm type="movie" onSave={() => setShowAdd(false)}/>}
       <Query
         query={gql`{
           movies {
@@ -23,15 +24,17 @@ function MovieScreen({ navigation }) {
           }
         }`}
       >
-        {({ loading, error, data }) => (
-          <View style={styles.container}>
-            {loading && <Text>Loading...</Text>}
-            {error && <Text>Error 🙁</Text>}
-            {data.movies &&
-              <Flatlist data={data.movies} navi={navigation} type="movie"/>
-            }
-          </View>
-        )}
+        {({ loading, error, data, refetch, networkStatus }) => {
+          return (
+            <View style={styles.container}>
+              {loading && <Text>Loading...</Text>}
+              {error && <Text>Error 🙁</Text>}
+              {data.movies &&
+                <Flatlist data={data.movies} navi={navigation} type="movie"/>
+              }
+            </View>
+          )
+        }}
       </Query>
       <TouchableNativeFeedback onPress={() => setShowAdd(b => !b)}>
         <View style={styles.addButton}>

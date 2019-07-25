@@ -8,9 +8,10 @@ import AddForm from '../components/addform';
 
 function TvScreen({ navigation }) {
   const [showAdd, setShowAdd] = useState(false)
+
   return (
     <>
-      {showAdd && <AddForm type="tvShow"/>}
+      {showAdd && <AddForm type="tvShow" onSave={() => setShowAdd(false)}/>}
       <Query
         query={gql`{
           tvShows {
@@ -23,15 +24,17 @@ function TvScreen({ navigation }) {
           }
         }`}
       >
-        {({ loading, error, data }) => { console.log(data);return (
-          <View style={styles.container}>
-            {loading && <Text>Loading...</Text>}
-            {error && <Text>Error 🙁</Text>}
-            {data.tvShows &&
-              <Flatlist data={data.tvShows} navi={navigation} type="tvShow"/>
-            }
-          </View>
-        )}}
+        {({ loading, error, data, refetch, networkStatus }) => {
+          return (
+            <View style={styles.container}>
+              {loading && <Text>Loading...</Text>}
+              {error && <Text>Error 🙁</Text>}
+              {data.tvShows &&
+                <Flatlist data={data.tvShows} navi={navigation} type="tvShow"/>
+              }
+            </View>
+          )
+        }}
       </Query>
       <TouchableNativeFeedback onPress={() => setShowAdd(b => !b)}>
         <View style={styles.addButton}>

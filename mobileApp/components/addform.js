@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 
 import { Mutation } from 'react-apollo';
 import { gql } from 'apollo-boost';
+import { GET_MOVIES, GET_TVSHOWS } from '../helpers/refetchqueries';
 
 const CREATE_MOVIE = gql`
   mutation createMovie($show: ShowInput) {
@@ -24,14 +25,18 @@ const CREATE_TVSHOW = gql`
   }
 `;
 
-function AddForm({ type }) {
+function AddForm({ type, onSave }) {
 	const [title, setTitle] = useState('')
 	const [overview, setOverview] = useState('')
 	const [popularity, setPopularity] = useState('')
 	const [posterPath, setPosterPath] = useState('')
 	const [tags, setTags] = useState('')
+	const clearInput = () => {
+		setTitle('');	setOverview(''); setPopularity('');	setPosterPath(''); setTags('')
+	}
 
 	const mutation = type === 'movie' ? CREATE_MOVIE : CREATE_TVSHOW
+	const refetchQuery = type === 'movie' ? GET_MOVIES : GET_TVSHOWS
 	const mutationInput = () => ({
 		variables: {
 			show: {
@@ -39,13 +44,17 @@ function AddForm({ type }) {
 				overview,
 				popularity: +popularity,
 				poster_path: posterPath,
+				tags: [],
 			}
 		}
 	})
 
 	return (
-		<Mutation mutation={mutation}>
-      {(create, { data }) => (
+		<Mutation
+			mutation={mutation}
+			refetchQueries={[{ query: refetchQuery }]}	
+		>
+      {(create) => (
 				<View style={{marginTop: 24}}>
 					<Text style={styles.title}>
 						{type === 'movie' ? 'Add Movie' : 'Add TV Show'}
@@ -84,6 +93,9 @@ function AddForm({ type }) {
 						<View style={styles.save}>
 							<Button title="Save"color="#694fad" onPress={() => {
 								create(mutationInput())
+								setTimeout(() => {
+									onSave()
+								}, 200)
 							}}/>
 						</View>
 					</View>

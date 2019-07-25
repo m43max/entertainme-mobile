@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Image, StyleSheet, Text, View, TouchableNativeFeedback } from 'react-native';
 
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import { gql } from 'apollo-boost';
+import { GET_MOVIES, GET_TVSHOWS } from '../helpers/refetchqueries';
 
 const GET_MOVIE = gql`
 	query GetMovie($id: ID!) {
@@ -30,10 +31,25 @@ const GET_TVSHOW = gql`
 	}
 `;
 
+const DELETE_MOVIE = gql`
+	mutation deleteMovie($id: ID) {
+		deleteMovie(id: $id)
+	}
+`;
+
+const DELETE_TVSHOW = gql`
+	mutation deleteTvShow($id: ID) {
+		deleteTvShow(id: $id)
+	}
+`;
+
 function Details({ navigation }) {
 	const type = navigation.getParam('type')
 	const id = navigation.getParam('show')._id
+
 	const query = type === 'movie' ? GET_MOVIE : GET_TVSHOW
+	const mutation = type === 'movie' ? DELETE_MOVIE : DELETE_TVSHOW
+	const refetchQuery = type === 'movie' ? GET_MOVIES : GET_TVSHOWS
 
   return (
 		<View style={styles.container}>
@@ -59,11 +75,29 @@ function Details({ navigation }) {
 					}
 				}}
 			</Query>
-			<TouchableNativeFeedback onPress={() => {}}>
-        <View style={styles.Button}>
-          <Text style={styles.inside}>Delete</Text>
-        </View>
-      </TouchableNativeFeedback>
+			<Mutation
+				mutation={mutation}
+				refetchQueries={[{ query: refetchQuery }]}	
+			>
+				{(deleteOne) => {
+					return (
+						<TouchableNativeFeedback onPress={() => {
+							deleteOne({ variables: { id } })
+							setTimeout(() => {
+								if(type === 'movie') {
+									navigation.navigate('Movies')
+								} else {
+									navigation.navigate('TvShows')
+								}
+							}, 350)
+						}}>
+							<View style={styles.Button}>
+								<Text style={styles.inside}>Delete</Text>
+							</View>
+						</TouchableNativeFeedback>
+					)
+				}}
+			</Mutation>
     </View>
   );
 }
