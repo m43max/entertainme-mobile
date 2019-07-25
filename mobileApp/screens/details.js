@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Image, StyleSheet, Text, View, TouchableNativeFeedback } from 'react-native';
 
 import { Query, Mutation } from 'react-apollo';
 import { gql } from 'apollo-boost';
 import { GET_MOVIES, GET_TVSHOWS } from '../helpers/refetchqueries';
+
+import EditForm from '../components/editform';
 
 const GET_MOVIE = gql`
 	query GetMovie($id: ID!) {
@@ -44,6 +46,8 @@ const DELETE_TVSHOW = gql`
 `;
 
 function Details({ navigation }) {
+	const [showEdit, setShowEdit] = useState(false)
+
 	const type = navigation.getParam('type')
 	const id = navigation.getParam('show')._id
 
@@ -60,17 +64,22 @@ function Details({ navigation }) {
 					if (data) {
 						const show = data[type]
 						return (
-							<View style={styles.a}>
-								<Image style={styles.image} source={{uri: show.poster_path}} />
-								<Text style={styles.b}>
-									<Text style={styles.c}>
-										{show.title + '\n'}
+							<>
+								{showEdit && (
+									<EditForm type={type} show={show} onSave={() => setShowEdit(false)}/>
+								)}
+								<View style={styles.a}>
+									<Image style={styles.image} source={{uri: show.poster_path}} />
+									<Text style={styles.b}>
+										<Text style={styles.c}>
+											{show.title + '\n'}
+										</Text>
+										Overview: {show.overview + '\n'}
+										Popularity: {show.popularity + '\n'}
+										Tags: {show.tags.join(', ') + '\n'}
 									</Text>
-									Overview: {show.overview + '\n'}
-									Popularity: {show.popularity + '\n'}
-									Tags: {show.tags.join(', ') + '\n'}
-								</Text>
-							</View>
+								</View>
+							</>
 						)
 					}
 				}}
@@ -98,6 +107,13 @@ function Details({ navigation }) {
 					)
 				}}
 			</Mutation>
+			<TouchableNativeFeedback
+				onPress={() => setShowEdit(b => !b)}
+			>
+				<View style={{ ...styles.Button, bottom: 54 }}>
+					<Text style={styles.inside}>Edit</Text>
+				</View>
+			</TouchableNativeFeedback>
     </View>
   );
 }
@@ -110,17 +126,18 @@ const styles = StyleSheet.create({
 		padding: 12,
 	},
 	a: {
-		width: 290,
-		marginBottom: 12,
+		width: 280,
+		marginBottom: 24,
 		borderRadius: 5,
 		overflow: 'hidden',
 	},
 	image: {
-		width: 290,
+		width: 280,
 		height: 380,
 	},
 	b: {
-		paddingVertical: 12,
+		paddingTop: 12,
+		paddingBottom: 42,
 		fontSize: 14,
 		lineHeight: 20,
 	},
@@ -129,14 +146,14 @@ const styles = StyleSheet.create({
 		fontSize: 22,
 	},
 	Button: {
-		height: 38,
+		height: 36,
 		paddingHorizontal: 14,
     position: 'absolute',
     bottom: 10,
     right: 8,
     elevation: 5,
-    borderRadius: 20,
-    backgroundColor: '#282828',
+    borderRadius: 5,
+    backgroundColor: '#2f2f2f',
     justifyContent: 'center',
     alignItems: 'center',
   },

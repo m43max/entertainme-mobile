@@ -5,10 +5,8 @@ export const GET_MOVIES = gql`
 		movies {
 			_id
 			title
-			overview
 			poster_path
 			popularity
-			tags
 		}
 	}
 `
@@ -18,10 +16,8 @@ export const GET_TVSHOWS = gql`
 		tvShows {
 			_id
 			title
-			overview
 			poster_path
 			popularity
-			tags
 		}
 	}
 `

@@ -17,10 +17,8 @@ function TvScreen({ navigation }) {
           tvShows {
             _id
             title
-            overview
             poster_path
             popularity
-            tags
           }
         }`}
       >
@@ -59,7 +57,7 @@ const styles = StyleSheet.create({
     right: 8,
     elevation: 5,
     borderRadius: 21,
-    backgroundColor: '#282828',
+    backgroundColor: '#2f2f2f',
     justifyContent: 'center',
     alignItems: 'center',
   },

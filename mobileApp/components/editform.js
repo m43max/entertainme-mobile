@@ -5,9 +5,9 @@ import { Mutation } from 'react-apollo';
 import { gql } from 'apollo-boost';
 import { GET_MOVIES, GET_TVSHOWS } from '../helpers/refetchqueries';
 
-const CREATE_MOVIE = gql`
-  mutation createMovie($show: ShowInput) {
-    createMovie(movie: $show) {
+const UPDATE_MOVIE = gql`
+  mutation updateMovie($show: ShowInput) {
+    updateMovie(movie: $show) {
       _id
 			title
 			overview
@@ -15,9 +15,9 @@ const CREATE_MOVIE = gql`
   }
 `;
 
-const CREATE_TVSHOW = gql`
-  mutation createTvShow($show: ShowInput) {
-    createTvShow(tvShow: $show) {
+const UPDATE_TVSHOW = gql`
+  mutation updateTvShow($show: ShowInput) {
+    updateTvShow(tvShow: $show) {
       _id
 			title
 			overview
@@ -25,7 +25,7 @@ const CREATE_TVSHOW = gql`
   }
 `;
 
-function AddForm({ type, onSave }) {
+function EditForm({ type, show, onSave }) {
 	const [title, setTitle] = useState('')
 	const [overview, setOverview] = useState('')
 	const [popularity, setPopularity] = useState('')
@@ -35,7 +35,7 @@ function AddForm({ type, onSave }) {
 		setTitle('');	setOverview(''); setPopularity('');	setPosterPath(''); setTags('')
 	}
 
-	const mutation = type === 'movie' ? CREATE_MOVIE : CREATE_TVSHOW
+	const mutation = type === 'movie' ? UPDATE_MOVIE : UPDATE_TVSHOW
 	const refetchQuery = type === 'movie' ? GET_MOVIES : GET_TVSHOWS
 	const mutationInput = () => ({
 		variables: {
@@ -55,11 +55,11 @@ function AddForm({ type, onSave }) {
 			refetchQueries={[{ query: refetchQuery }]}	
 		>
       {(create) => (
-				<View style={{marginTop: 24}}>
+				<View style={styles.container}>
 					<Text style={styles.title}>
-						{type === 'movie' ? 'Add Movie' : 'Add TV Show'}
+						{type === 'movie' ? 'Edit Movie' : 'Edit TV Show'}
 					</Text>
-					<View>
+					<View style={{flex: 1}}>
 						<TextInput
 							style={styles.search}
 							placeholder="Enter title"
@@ -91,6 +91,9 @@ function AddForm({ type, onSave }) {
 							value={tags}
 						/>
 						<View style={styles.save}>
+							<View style={{marginBottom: 12}}>
+								<Button title="Cancel"color="#694fad" onPress={onSave}/>
+							</View>
 							<Button title="Save"color="#694fad" onPress={() => {
 								create(mutationInput())
 								setTimeout(() => {
@@ -107,6 +110,16 @@ function AddForm({ type, onSave }) {
 }
 
 const styles = StyleSheet.create({
+	container: {
+		position: 'absolute',
+		flex: 1,
+		width: '100%',
+		height: 700,
+		backgroundColor: '#dfdfdf',
+		alignItems: 'center',
+		justifyContent: 'center',
+		zIndex: 10,
+	},
 	a: {
 		// flex: 1,
 		width: 180,
@@ -123,12 +136,6 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		color: '#222',
 		textAlign: 'center',
-	},
-	container: {
-		flex: 1,
-		backgroundColor: '#000',
-		alignItems: 'center',
-		justifyContent: 'center',
 	},
 	search: {
 		alignSelf: 'stretch',
@@ -147,4 +154,4 @@ const styles = StyleSheet.create({
 	}
 })
 
-export default AddForm;
+export default EditForm;
